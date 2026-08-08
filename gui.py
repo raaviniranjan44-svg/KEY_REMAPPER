@@ -216,6 +216,11 @@ class KeyRemapperApp:
         btn_unlock = tk.Button(self.bar_card, text="🔓 Unlock Fn F7 ➔ /", font=("Segoe UI", 9, "bold"), bg=self.theme["accent_blue"], fg="#ffffff", bd=0, padx=12, pady=5, cursor="hand2", command=self._unlock_fn_f7)
         btn_unlock.pack(side="left", padx=(0, 12))
 
+        # Auto-Start Checkbox
+        self.var_autostart = tk.BooleanVar(value=self._check_autostart())
+        self.chk_auto = tk.Checkbutton(self.bar_card, text="🚀 Run on Windows Startup", variable=self.var_autostart, font=("Segoe UI", 9), bg=self.theme["bg_card"], fg=self.theme["text_primary"], selectcolor=self.theme["bg_card"], activebackground=self.theme["bg_card"], activeforeground=self.theme["text_primary"], command=self._toggle_autostart)
+        self.chk_auto.pack(side="right")
+
     def _unlock_fn_f7(self):
         """Map all laptop Fn & Action scancodes for F7 to / (Slash) automatically."""
         fn_codes = [0x76, 179, 176, 173, 174, 175, 182, 183]
@@ -225,11 +230,6 @@ class KeyRemapperApp:
         self._save_current_profile()
         self._refresh_mappings_table()
         self.lbl_status.config(text="Unlocked F7 (All Fn & Action key scancodes now print /)!", fg=self.theme["accent_green"])
-        
-        # Auto-Start Checkbox
-        self.var_autostart = tk.BooleanVar(value=self._check_autostart())
-        self.chk_auto = tk.Checkbutton(self.bar_card, text="🚀 Run on Windows Startup", variable=self.var_autostart, font=("Segoe UI", 9), bg=self.theme["bg_card"], fg=self.theme["text_primary"], selectcolor=self.theme["bg_card"], activebackground=self.theme["bg_card"], activeforeground=self.theme["text_primary"], command=self._toggle_autostart)
-        self.chk_auto.pack(side="right")
 
     def _check_autostart(self) -> bool:
         """Check if app is registered in Windows Startup Registry."""
@@ -570,12 +570,22 @@ class KeyRemapperApp:
             messagebox.showwarning("Same Key", "Source key and Target key cannot be identical.")
             return
 
+        is_update = src_vk in self.profile_mgr.mappings
+        prev_tgt = self.profile_mgr.mappings.get(src_vk)
+        
+        if is_update and prev_tgt == tgt_vk:
+            messagebox.showinfo("Duplicate Rule", f"The rule '{get_key_name(src_vk)} ➡️ {get_key_name(tgt_vk)}' is already active in your table.")
+            return
+
         self.profile_mgr.mappings[src_vk] = tgt_vk
         self.engine.set_remap_table(self.profile_mgr.mappings)
         self._save_current_profile()
         self._refresh_mappings_table()
         
-        self.lbl_status.config(text=f"Added rule: {get_key_name(src_vk)} ➡️ {get_key_name(tgt_vk)}", fg=self.theme["accent_green"])
+        if is_update:
+            self.lbl_status.config(text=f"Updated rule: {get_key_name(src_vk)} ➡️ {get_key_name(tgt_vk)}", fg=self.theme["accent_green"])
+        else:
+            self.lbl_status.config(text=f"Added rule: {get_key_name(src_vk)} ➡️ {get_key_name(tgt_vk)}", fg=self.theme["accent_green"])
 
     def _remove_selected_rule(self):
         """Delete selected remap rule from table."""

@@ -4,44 +4,8 @@
         {
             "src_vk": 118,
             "src_name": "F7",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 65,
-            "src_name": "A",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 179,
-            "src_name": "Media Play/Pause",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 176,
-            "src_name": "Media Next",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 173,
-            "src_name": "Mute Volume",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 174,
-            "src_name": "Volume Down",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
-        },
-        {
-            "src_vk": 175,
-            "src_name": "Volume Up",
-            "tgt_vk": 191,
-            "tgt_name": "/ (Slash)"
+            "tgt_vk": 65,
+            "tgt_name": "A"
         }
     ]
 }
