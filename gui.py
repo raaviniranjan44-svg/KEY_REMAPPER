@@ -214,7 +214,11 @@ class KeyRemapperApp:
         btn_del.pack(side="left", padx=(0, 8))
         
         btn_unlock = tk.Button(self.bar_card, text="🔓 Unlock Fn F7 ➔ /", font=("Segoe UI", 9, "bold"), bg=self.theme["accent_blue"], fg="#ffffff", bd=0, padx=12, pady=5, cursor="hand2", command=self._unlock_fn_f7)
-        btn_unlock.pack(side="left", padx=(0, 12))
+        btn_unlock.pack(side="left", padx=(0, 8))
+
+        btn_perm = tk.Button(self.bar_card, text="⚡ Kernel Map (No App Needed)", font=("Segoe UI", 9, "bold"), bg=self.theme["bg_card_hover"], fg=self.theme["text_primary"], bd=0, padx=12, pady=5, cursor="hand2", command=self._apply_permanent_kernel_map)
+        btn_perm.pack(side="left", padx=(0, 12))
+        self.track_buttons.append(btn_perm)
 
         # Auto-Start Checkbox
         self.var_autostart = tk.BooleanVar(value=self._check_autostart())
@@ -230,6 +234,20 @@ class KeyRemapperApp:
         self._save_current_profile()
         self._refresh_mappings_table()
         self.lbl_status.config(text="Unlocked F7 (All Fn & Action key scancodes now print /)!", fg=self.theme["accent_green"])
+
+    def _apply_permanent_kernel_map(self):
+        """Write permanent Scancode Map to Windows Registry (No App Needed Running)."""
+        import registry_remapper
+        if not self.profile_mgr.mappings:
+            messagebox.showwarning("Empty Mappings", "Please add at least one key mapping rule before applying permanent kernel map.")
+            return
+            
+        success = registry_remapper.write_registry_scancode_map(self.profile_mgr.mappings)
+        if success:
+            messagebox.showinfo("Permanent Kernel Map Active", "Permanent Windows Kernel Scancode Map written successfully!\n\nWindows Kernel will handle your key mappings natively on boot without needing any app running in background.\n\nNote: Requires a PC restart to take full effect.")
+            self.lbl_status.config(text="Permanent Kernel Scancode Map active! (PC restart required)", fg=self.theme["accent_green"])
+        else:
+            messagebox.showerror("Permission Error", "Failed to write to HKEY_LOCAL_MACHINE Registry.\nPlease right-click run.bat and select 'Run as Administrator'.")
 
     def _check_autostart(self) -> bool:
         """Check if app is registered in Windows Startup Registry."""
