@@ -1,5 +1,6 @@
 """
 Virtual Key Codes (VK) & Key Name Mappings for Windows OS
+Supports Full Names, Raw Characters, and Case-Insensitive Aliases.
 """
 
 # Windows Virtual Key Codes dictionary
@@ -49,7 +50,7 @@ VK_CODE_TO_NAME = {
     0x68: "Numpad 8", 0x69: "Numpad 9", 0x6A: "Numpad *", 0x6B: "Numpad +",
     0x6D: "Numpad -", 0x6E: "Numpad .", 0x6F: "Numpad /",
     
-    # Function Keys
+    # Function Keys F1-F12
     0x70: "F1", 0x71: "F2", 0x72: "F3", 0x73: "F4", 0x74: "F5", 0x75: "F6",
     0x76: "F7", 0x77: "F8", 0x78: "F9", 0x79: "F10", 0x7A: "F11", 0x7B: "F12",
     
@@ -66,6 +67,10 @@ VK_CODE_TO_NAME = {
     0xAD: "Mute Volume",
     0xAE: "Volume Down",
     0xAF: "Volume Up",
+    0xB0: "Media Next",
+    0xB1: "Media Prev",
+    0xB2: "Media Stop",
+    0xB3: "Media Play/Pause",
     
     # Punctuation & Symbols
     0xBA: "; (Semicolon)",
@@ -81,8 +86,53 @@ VK_CODE_TO_NAME = {
     0xDE: "' (Single Quote)"
 }
 
-# Reverse lookup dictionary (Name -> VK Code)
-NAME_TO_VK_CODE = {name: code for code, name in VK_CODE_TO_NAME.items()}
+# Reverse lookup dictionary building (Case-Insensitive)
+NAME_TO_VK_CODE = {}
+
+# 1. Populate standard descriptive names
+for code, name in VK_CODE_TO_NAME.items():
+    NAME_TO_VK_CODE[name] = code
+    NAME_TO_VK_CODE[name.lower()] = code
+
+# 2. Add raw character symbol mappings
+SYMBOL_DIRECT_MAP = {
+    "/": 0xBF,
+    ";": 0xBA,
+    "=": 0xBB,
+    ",": 0xBC,
+    "-": 0xBD,
+    ".": 0xBE,
+    "`": 0xC0,
+    "[": 0xDB,
+    "\\": 0xDC,
+    "]": 0xDD,
+    "'": 0xDE,
+    "slash": 0xBF,
+    "semicolon": 0xBA,
+    "equal": 0xBB,
+    "comma": 0xBC,
+    "minus": 0xBD,
+    "period": 0xBE,
+    "tilde": 0xC0,
+    "bracketleft": 0xDB,
+    "backslash": 0xDC,
+    "bracketright": 0xDD,
+    "quote": 0xDE,
+    "esc": 0x1B,
+    "caps": 0x14,
+    "del": 0x2E,
+    "ins": 0x2D
+}
+
+for char_str, code in SYMBOL_DIRECT_MAP.items():
+    NAME_TO_VK_CODE[char_str] = code
+    NAME_TO_VK_CODE[char_str.lower()] = code
+
+# 3. Add lowercase letter aliases a-z -> A-Z (0x41-0x5A)
+for char_code in range(0x41, 0x5A + 1):
+    char_str = chr(char_code).lower()
+    NAME_TO_VK_CODE[char_str] = char_code
+
 
 def get_key_name(vk_code: int) -> str:
     """Returns human readable key name from virtual key code."""
@@ -90,6 +140,25 @@ def get_key_name(vk_code: int) -> str:
         return VK_CODE_TO_NAME[vk_code]
     return f"Key (0x{vk_code:02X})"
 
+
 def get_vk_code(key_name: str) -> int:
-    """Returns virtual key code from key name."""
-    return NAME_TO_VK_CODE.get(key_name, None)
+    """Returns virtual key code from key name or raw character symbol."""
+    if not key_name:
+        return None
+    key_clean = key_name.strip()
+    
+    # Try exact or lowercase lookup
+    if key_clean in NAME_TO_VK_CODE:
+        return NAME_TO_VK_CODE[key_clean]
+    if key_clean.lower() in NAME_TO_VK_CODE:
+        return NAME_TO_VK_CODE[key_clean.lower()]
+        
+    # Try hex parsing (e.g. 0xBF or 191)
+    try:
+        val = int(key_clean, 0)
+        if 0 <= val <= 255:
+            return val
+    except ValueError:
+        pass
+        
+    return None

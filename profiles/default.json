@@ -6,6 +6,12 @@
             "src_name": "F7",
             "tgt_vk": 65,
             "tgt_name": "A"
+        },
+        {
+            "src_vk": 65,
+            "src_name": "A",
+            "tgt_vk": 191,
+            "tgt_name": "/ (Slash)"
         }
     ]
 }
