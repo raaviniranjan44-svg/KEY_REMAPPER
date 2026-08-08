@@ -1,0 +1,53 @@
+{
+    "profile_name": "default",
+    "mappings": [
+        {
+            "src_vk": 118,
+            "src_name": "F7",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 179,
+            "src_name": "Key (0xB3)",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 176,
+            "src_name": "Key (0xB0)",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 173,
+            "src_name": "Mute Volume",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 174,
+            "src_name": "Volume Down",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 175,
+            "src_name": "Volume Up",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 182,
+            "src_name": "Key (0xB6)",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        },
+        {
+            "src_vk": 183,
+            "src_name": "Key (0xB7)",
+            "tgt_vk": 65,
+            "tgt_name": "A"
+        }
+    ]
+}
