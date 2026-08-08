@@ -8,9 +8,11 @@ import tkinter as tk
 from gui import KeyRemapperApp
 
 def main():
-    # Launch Tkinter GUI
+    # Check if launched with --minimized or -m flag (e.g. from Windows Startup)
+    start_minimized = "--minimized" in sys.argv or "-m" in sys.argv
+    
     root = tk.Tk()
-    app = KeyRemapperApp(root)
+    app = KeyRemapperApp(root, start_minimized=start_minimized)
     root.mainloop()
 
 if __name__ == "__main__":

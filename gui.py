@@ -49,8 +49,9 @@ THEME_DARK = {
 
 
 class KeyRemapperApp:
-    def __init__(self, root: tk.Tk):
+    def __init__(self, root: tk.Tk, start_minimized: bool = False):
         self.root = root
+        self.start_minimized = start_minimized
         self.root.title("KeyMapper Pro — Universal Keyboard Remapper")
         self.root.geometry("1020x840")
         self.root.minsize(980, 760)
@@ -89,6 +90,10 @@ class KeyRemapperApp:
         self._load_current_profile()
         self.engine.start()
         
+        # If launched from Windows startup, start minimized in background
+        if self.start_minimized:
+            self.root.iconify()
+            
         # Clean shutdown on window close
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -208,18 +213,18 @@ class KeyRemapperApp:
         btn_del = tk.Button(self.bar_card, text="🗑️ Delete Profile", font=("Segoe UI", 9), bg=self.theme["bg_card_hover"], fg=self.theme["accent_red"], bd=0, padx=12, pady=5, cursor="hand2", command=self._delete_current_profile)
         btn_del.pack(side="left", padx=(0, 8))
         
-        btn_unlock = tk.Button(self.bar_card, text="🔓 Unlock Fn F7 ➔ A", font=("Segoe UI", 9, "bold"), bg=self.theme["accent_blue"], fg="#ffffff", bd=0, padx=12, pady=5, cursor="hand2", command=self._unlock_fn_f7)
+        btn_unlock = tk.Button(self.bar_card, text="🔓 Unlock Fn F7 ➔ /", font=("Segoe UI", 9, "bold"), bg=self.theme["accent_blue"], fg="#ffffff", bd=0, padx=12, pady=5, cursor="hand2", command=self._unlock_fn_f7)
         btn_unlock.pack(side="left", padx=(0, 12))
 
     def _unlock_fn_f7(self):
-        """Map all laptop Fn & Action scancodes for F7 to A automatically."""
+        """Map all laptop Fn & Action scancodes for F7 to / (Slash) automatically."""
         fn_codes = [0x76, 179, 176, 173, 174, 175, 182, 183]
         for vk in fn_codes:
-            self.profile_mgr.mappings[vk] = 0x41 # 'A'
+            self.profile_mgr.mappings[vk] = 0xBF # '/'
         self.engine.set_remap_table(self.profile_mgr.mappings)
         self._save_current_profile()
         self._refresh_mappings_table()
-        self.lbl_status.config(text="Unlocked F7 (All Fn & Action key scancodes now print A)!", fg=self.theme["accent_green"])
+        self.lbl_status.config(text="Unlocked F7 (All Fn & Action key scancodes now print /)!", fg=self.theme["accent_green"])
         
         # Auto-Start Checkbox
         self.var_autostart = tk.BooleanVar(value=self._check_autostart())
@@ -244,10 +249,14 @@ class KeyRemapperApp:
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
             if self.var_autostart.get():
-                main_py = os.path.abspath(os.path.join(os.path.dirname(__file__), "main.py"))
-                cmd = f'"{sys.executable}" "{main_py}"'
+                if getattr(sys, 'frozen', False):
+                    exe_path = os.path.abspath(sys.executable)
+                    cmd = f'"{exe_path}" --minimized'
+                else:
+                    main_py = os.path.abspath(os.path.join(os.path.dirname(__file__), "main.py"))
+                    cmd = f'"{sys.executable}" "{main_py}" --minimized'
                 winreg.SetValueEx(key, "KeyMapperPro", 0, winreg.REG_SZ, cmd)
-                self.lbl_status.config(text="Added KeyMapper Pro to Windows Startup!", fg=self.theme["accent_green"])
+                self.lbl_status.config(text="Added KeyMapper Pro to Windows Startup (launches minimized)!", fg=self.theme["accent_green"])
             else:
                 try:
                     winreg.DeleteValue(key, "KeyMapperPro")
